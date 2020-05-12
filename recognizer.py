@@ -11,6 +11,7 @@ class Recognizer:
         for class_dir in classes_dir.iterdir():
             if not class_dir.is_dir(): continue
             c = class_dir.name
+            if c == '.git': continue
             if '-' in c:
                 s = c.split('-')
                 c = (s[0], int(s[1])) # e.g., ('black', 6)
