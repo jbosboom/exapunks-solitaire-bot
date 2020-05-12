@@ -44,17 +44,20 @@ def is_solved(puzzle: Puzzle):
             return False
     return True
 
-def stacks_onto(before, after):
-    if isinstance(before, str) or isinstance(after, str):
-        return before == after
-    sb, nb = before
-    sa, na = after
-    return sb != sa and nb == (na + 1)
+def make_valid_stacks():
+    valid_stacks = set()
+    for suit in ('club', 'diamond', 'heart', 'spade'):
+        valid_stacks.add((suit, suit))
+    for i in range(6, 10):
+        valid_stacks.add((('black', i+1), ('red', i)))
+        valid_stacks.add((('red', i+1), ('black', i)))
+    return valid_stacks
+valid_stacks = make_valid_stacks()
 
 def maximal_stack(stack):
     m = len(stack)-1
     while m > 0:
-        if stacks_onto(stack[m-1], stack[m]):
+        if (stack[m-1], stack[m]) in valid_stacks:
             m -= 1
         else:
             break
@@ -75,7 +78,7 @@ def solve(puzzle: Puzzle):
             # move this chunk to another stack
             for j, target in enumerate(cur.stacks):
                 if i == j: continue
-                if not target or stacks_onto(target[-1], chunk[0]):
+                if not target or (target[-1], chunk[0]) in valid_stacks:
                     stacks = list(cur.stacks)
                     stacks[i] = stacks[i][:m]
                     stacks[j] = stacks[j] + chunk
@@ -102,7 +105,7 @@ def solve(puzzle: Puzzle):
         # if the free cell is full, try to move it
         if cur.free:
             for j, target in enumerate(cur.stacks):
-                if not target or stacks_onto(target[-1], cur.free):
+                if not target or (target[-1], cur.free) in valid_stacks:
                     stacks = list(cur.stacks)
                     stacks[j] = stacks[j] + (cur.free,)
                     next = Puzzle(tuple(stacks), None)
