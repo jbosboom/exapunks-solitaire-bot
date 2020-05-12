@@ -60,21 +60,15 @@ def maximal_stack(stack):
             break
     return m
 
-class MaxStackCache(dict):
-    def __missing__(self, key):
-        return maximal_stack(key)
-
 def solve(puzzle: Puzzle):
     parent = {} # maps puzzles to (puzzle, move descriptor) pairs
     pending = deque()
-    max_stack = MaxStackCache()
     solved = None
     pending.append(puzzle)
     while pending and not solved:
         cur = pending.popleft()
         for i, source in enumerate(cur.stacks):
             if not source: continue
-            # m = max_stack[source]
             m = maximal_stack(source)
             chunk = source[m:]
 
