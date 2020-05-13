@@ -24,7 +24,7 @@ def parse_screenshot(image, recognizer):
     stacks = tuple(stacks)
     return Puzzle(stacks, None)
 
-_suit_stacks = [(suit,)*4 for suit in ('club', 'diamond', 'heart', 'spade')]
+_suit_stacks = [(suit,)*4 for suit in (('club',), ('diamond',), ('heart',), ('spade',))]
 _pip_stacks = [
     (('black', 10), ('red', 9), ('black', 8), ('red', 7), ('black', 6)),
     (('red', 10), ('black', 9), ('red', 8), ('black', 7), ('red', 6)),
@@ -46,7 +46,7 @@ def is_solved(puzzle: Puzzle):
 
 def make_valid_stacks():
     valid_stacks = set()
-    for suit in ('club', 'diamond', 'heart', 'spade'):
+    for suit in (('club',), ('diamond',), ('heart',), ('spade',)):
         valid_stacks.add((suit, suit))
     for i in range(6, 10):
         valid_stacks.add((('black', i+1), ('red', i)))
