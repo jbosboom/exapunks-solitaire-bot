@@ -99,8 +99,7 @@ def solve(puzzle: Puzzle):
                     pending.append(next)
                     move_desc = ((i, m), 'free')
                     parent[next] = (cur, move_desc)
-                    if is_solved(next):
-                        solved = next
+                    # We can't have solved with a card in the free space, so don't check is_solved.
 
         # if the free cell is full, try to move it
         if cur.free:
