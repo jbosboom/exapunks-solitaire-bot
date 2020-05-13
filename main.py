@@ -1,4 +1,6 @@
+import argparse
 from pathlib import Path
+import ast
 import pyautogui
 import solver
 from recognizer import Recognizer
@@ -22,6 +24,17 @@ def parse_screenshot(image, recognizer):
     stacks = tuple(stacks)
     return solver.Puzzle(stacks, None)
 
+def solve_via_server(puzzle: solver.Puzzle, server_url):
+    # ast.literal_eval doesn't handle namedtuples, so convert to a regular tuple.
+    puzzle = (puzzle.stacks, puzzle.free)
+    puzzle = repr(puzzle)
+
+    import requests
+    r = requests.post(server_url, data=puzzle)
+    r.raise_for_status()
+    solution = r.text
+    return ast.literal_eval(solution)
+
 def main(args):
     recognizer = Recognizer(Path('data/'))
 
@@ -30,9 +43,14 @@ def main(args):
     puzzle = parse_screenshot(screenshot, recognizer)
     for stack in puzzle.stacks:
         print(stack)
-    solution = solver.solve(puzzle)
+    if args.server_url:
+        solution = solve_via_server(puzzle, args.server_url)
+    else:
+        solution = solver.solve(puzzle)
     print(len(solution))
     print(solution)
 
 if __name__ == '__main__':
-    main(None)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--server-url", type=str)
+    main(parser.parse_args())
