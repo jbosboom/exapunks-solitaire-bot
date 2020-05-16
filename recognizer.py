@@ -38,6 +38,7 @@ class Recognizer:
             return self.hash_to_class[hash]
         except KeyError:
             mistake_dir = xdg.XDG_RUNTIME_DIR / 'exapunks-solitaire'
+            mistake_dir.mkdir(exist_ok=True)
             mistake_name = str(time.monotonic_ns())+'.png'
             image.save(str(mistake_dir / mistake_name))
             raise
