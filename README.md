@@ -1,0 +1,7 @@
+This is a bot that plays ПАСЬЯНС, the solitaire minigame in EXAPUNKS.
+
+Puzzle recognition is simply by hashing the pixel data.  You will need to sort some images into `data/black-6`, `data/club` and so on.  (If rendering was perfectly consistent across machines, you could just hardcode the hashes in a Python source file.  But antialiased rendering always seems to be different across machines, graphics cards and driver versions.)
+
+By default, the bot will only solve deals that don't involve using the free cell, to reduce the memory consumption of the breadth-first search.  If you're just trying to get the achievement, it's faster to redeal when failing to solve rather than trying again with the free cell, so that's what the bot does.  If you have a lot of memory you can turn the free-cell solving on.  If you have access to another machine with a lot of memory, you can use the `--solver-url` parameter to use hacky HTTP RPC to solve on the other machine.
+
+We could probably avoid some of the blowup with the free cell by making moves more complicated.  We should only move a card to the free cell if we're going to interact with the card immediately below the card we moved, either by moving its stack somewhere else or moving a stack onto it.  So we should make a free-space move also include a move using the card below.
