@@ -1,4 +1,5 @@
 from collections import deque, namedtuple
+from typing import Tuple
 
 Puzzle = namedtuple('Puzzle', ('stacks', 'free'))
 
@@ -8,16 +9,18 @@ _pip_stacks = [
     (('red', 10), ('black', 9), ('red', 8), ('black', 7), ('red', 6)),
 ]
 def is_solved(puzzle: Puzzle):
-    if puzzle.free: return False
+    return not puzzle.free and is_solved_stacks(puzzle.stacks)
+
+def is_solved_stacks(stacks: Tuple):
     for suit_stack in _suit_stacks:
         try:
-            puzzle.stacks.index(suit_stack)
+            stacks.index(suit_stack)
         except ValueError:
             return False
     for pip_stack in _pip_stacks:
         try:
-            i = puzzle.stacks.index(pip_stack)
-            puzzle.stacks.index(pip_stack, i+1)
+            i = stacks.index(pip_stack)
+            stacks.index(pip_stack, i+1)
         except ValueError:
             return False
     return True
@@ -41,7 +44,7 @@ def maximal_stack(stack):
             break
     return m
 
-def solve(puzzle: Puzzle):
+def solve_with_free_cell(puzzle: Puzzle):
     parent = {} # maps puzzles to (puzzle, move descriptor) pairs
     pending = deque()
     solved = None
@@ -100,3 +103,44 @@ def solve(puzzle: Puzzle):
         solved = prev
     solution.reverse()
     return solution
+
+def solve_without_free_cell(puzzle: Tuple):
+    parent = {}  # maps puzzles to (puzzle, move descriptor) pairs
+    pending = deque()
+    solved = None
+    pending.append(puzzle)
+    while pending and not solved:
+        cur = pending.popleft()
+        for i, source in enumerate(cur):
+            if not source: continue
+            m = maximal_stack(source)
+            chunk = source[m:]
+
+            # move this chunk to another stack
+            for j, target in enumerate(cur):
+                if i == j: continue
+                if not target or (target[-1], chunk[0]) in valid_stacks:
+                    stacks = list(cur)
+                    stacks[i] = stacks[i][:m]
+                    stacks[j] = stacks[j] + chunk
+                    next = tuple(stacks)
+                    if next not in parent:
+                        pending.append(next)
+                        move_desc = ((i, m), (j, len(cur[j])))
+                        parent[next] = (cur, move_desc)
+                        if is_solved_stacks(next):
+                            solved = next
+
+    solution = []
+    while backptr := parent.get(solved):
+        prev, move_desc = backptr
+        solution.append(move_desc)
+        solved = prev
+    solution.reverse()
+    return solution
+
+def solve(puzzle: Puzzle, use_free_cell=False):
+    if use_free_cell:
+        return solve_with_free_cell(puzzle)
+    else:
+        return solve_without_free_cell(puzzle.stacks)
