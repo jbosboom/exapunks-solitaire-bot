@@ -12,11 +12,6 @@ class Recognizer:
             if not class_dir.is_dir(): continue
             c = class_dir.name
             if c == '.git': continue
-            if '-' in c:
-                s = c.split('-')
-                c = (s[0], int(s[1])) # e.g., ('black', 6)
-            else:
-                c = (c,)
             for image_file in class_dir.iterdir():
                 with Image.open(image_file) as image:
                     image = image.convert("RGB")
